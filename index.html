@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Agenda Guru</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@600&display=swap');
+:root{
+  --g1:#14532d;--g2:#166534;--g3:#15803d;--g4:#16a34a;
+  --g-bg:#f0fdf4;--g-bd:#bbf7d0;
+  --merah:#dc2626;--merah-bg:#fef2f2;
+  --kuning:#d97706;--kuning-bg:#fffbeb;
+  --bg:#f1f5f9;--card:#fff;
+  --teks:#0f172a;--teks2:#475569;--teks3:#94a3b8;--border:#e2e8f0;
+  --font:'Nunito',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--teks);min-height:100vh;}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(160deg,var(--g1),var(--g2),var(--g3));}
+.login-box{background:var(--card);border-radius:20px;padding:32px 28px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.25);}
+.login-box h2{font-size:20px;font-weight:900;color:var(--teks);margin-bottom:4px;text-align:center;}
+.login-box p{font-size:12px;color:var(--teks2);text-align:center;margin-bottom:24px;}
+.inp{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font);font-size:15px;color:var(--teks);outline:none;margin-bottom:12px;}
+.inp:focus{border-color:var(--g4);}
+.btn{width:100%;padding:13px;border:none;border-radius:10px;font-family:var(--font);font-size:14px;font-weight:800;cursor:pointer;}
+.btn.hijau{background:var(--g4);color:#fff;}
+.btn.merah{background:var(--merah);color:#fff;}
+.btn.abu{background:var(--bg);color:var(--teks2);border:1.5px solid var(--border);}
+.err{font-size:12px;color:var(--merah);background:var(--merah-bg);padding:8px 12px;border-radius:8px;text-align:center;display:none;margin-top:8px;}
+
+/* MAIN */
+.main-wrap{display:none;min-height:100vh;flex-direction:column;}
+.topbar{background:linear-gradient(135deg,var(--g1),var(--g2));padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+.topbar h1{font-size:16px;font-weight:900;color:#fff;}
+.topbar p{font-size:11px;color:rgba(255,255,255,0.6);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.btn-logout{padding:7px 14px;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;}
+
+.content{padding:24px;max-width:900px;margin:0 auto;width:100%;}
+.section-title{font-size:13px;font-weight:900;color:var(--teks2);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:14px;margin-top:4px;}
+
+/* STATS */
+.stats-row{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 20px;flex:1;min-width:140px;}
+.stat-card .n{font-size:28px;font-weight:900;color:var(--g4);}
+.stat-card .l{font-size:12px;color:var(--teks2);font-weight:700;margin-top:2px;}
+.stat-card.merah .n{color:var(--merah);}
+.stat-card.kuning .n{color:var(--kuning);}
+
+/* TABEL GURU */
+.card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.search-bar{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font);font-size:14px;color:var(--teks);outline:none;margin-bottom:16px;}
+.search-bar:focus{border-color:var(--g4);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:var(--bg);padding:10px 12px;text-align:left;font-size:11px;font-weight:800;color:var(--teks2);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border);}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#f8fafc;}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:800;}
+.badge.ok{background:var(--g-bg);color:var(--g3);border:1px solid var(--g-bd);}
+.badge.belum{background:var(--kuning-bg);color:var(--kuning);border:1px solid #fde68a;}
+.badge.piket{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:10px;}
+.token-box{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--teks);background:var(--bg);padding:4px 10px;border-radius:6px;letter-spacing:2px;display:inline-block;}
+.token-box.kosong{color:var(--teks3);font-style:italic;font-family:var(--font);font-size:12px;letter-spacing:0;}
+.btn-sm{padding:6px 12px;border-radius:8px;border:none;font-family:var(--font);font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;}
+.btn-sm.hijau{background:var(--g-bg);color:var(--g3);border:1px solid var(--g-bd);}
+.btn-sm.merah{background:var(--merah-bg);color:var(--merah);border:1px solid #fecaca;}
+.btn-sm.biru{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;}
+.btn-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;z-index:100;background:rgba(15,23,42,0.6);align-items:center;justify-content:center;padding:20px;}
+.modal-bg.aktif{display:flex;}
+.modal-box{background:var(--card);border-radius:20px;padding:28px;width:100%;max-width:420px;box-shadow:0 20px 50px rgba(0,0,0,0.2);}
+.modal-box h3{font-size:17px;font-weight:900;margin-bottom:6px;}
+.modal-box p{font-size:13px;color:var(--teks2);margin-bottom:20px;line-height:1.5;}
+.token-hasil{font-family:var(--mono);font-size:24px;font-weight:700;text-align:center;background:var(--g-bg);border:2px solid var(--g-bd);border-radius:12px;padding:16px;letter-spacing:4px;color:var(--g2);margin-bottom:16px;}
+.modal-actions{display:flex;gap:8px;}
+.modal-actions .btn{flex:1;}
+.copy-hint{font-size:11px;color:var(--teks3);text-align:center;margin-bottom:12px;}
+
+/* LOADING */
+.ld{display:none;position:fixed;inset:0;z-index:200;background:rgba(255,255,255,0.85);align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+.ld.aktif{display:flex;}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--g4);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld p{font-size:14px;font-weight:700;color:var(--teks2);}
+
+.empty-state{text-align:center;padding:40px;color:var(--teks3);}
+.empty-state svg{width:48px;height:48px;stroke:var(--border);margin-bottom:10px;fill:none;stroke-width:1.5;stroke-linecap:round;}
+
+.info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px 16px;font-size:12px;color:#1d4ed8;margin-bottom:16px;line-height:1.6;}
+.info-box strong{font-weight:800;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div style="text-align:center;margin-bottom:20px">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <h2>Admin — Agenda Guru</h2>
+    <p>SMP Negeri 05 Sarolangun<br>Masuk sebagai administrator</p>
+    <input class="inp" type="password" id="admin-pass" placeholder="Password admin" autocomplete="off">
+    <button class="btn hijau" onclick="doLogin()">Masuk</button>
+    <div class="err" id="login-err">Password salah.</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-wrap" id="main-wrap">
+  <div class="topbar">
+    <div>
+      <h1>Panel Admin — Agenda Mengajar Guru</h1>
+      <p>SMP Negeri 05 Sarolangun · Manajemen Token HP Guru</p>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-logout" onclick="doLogout()">Keluar</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="n" id="stat-total">—</div><div class="l">Total Guru</div></div>
+      <div class="stat-card"><div class="n" id="stat-terdaftar">—</div><div class="l">HP Terdaftar</div></div>
+      <div class="stat-card merah"><div class="n" id="stat-belum">—</div><div class="l">Belum Daftar</div></div>
+    </div>
+
+    <div class="info-box">
+      <strong>📋 Cara registrasi HP guru:</strong><br>
+      1. Klik <strong>Generate Token</strong> pada nama guru yang bersangkutan<br>
+      2. Salin token yang muncul → kirim ke guru via WhatsApp<br>
+      3. Guru buka aplikasi di HP → masukkan token → HP terdaftar otomatis<br>
+      4. Jika guru ganti HP, klik <strong>Reset Token</strong> lalu generate ulang
+    </div>
+
+    <div class="card">
+      <div class="section-title">Daftar Guru & Status Token HP</div>
+      <input class="search-bar" id="search-guru" placeholder="Cari nama guru..." oninput="filterGuru()">
+      <div id="tabel-guru-wrap">
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <p>Menghubungkan ke server...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TOKEN -->
+<div class="modal-bg" id="modal-token">
+  <div class="modal-box">
+    <h3 id="modal-title">Token Baru</h3>
+    <p id="modal-sub">Token di bawah ini sudah disimpan ke sistem. Kirimkan ke guru via WhatsApp.</p>
+    <div class="token-hasil" id="modal-token-val">—</div>
+    <div class="copy-hint">Klik tombol salin untuk menyalin token</div>
+    <div class="modal-actions">
+      <button class="btn hijau" onclick="salinToken()">📋 Salin Token</button>
+      <button class="btn abu" onclick="tutupModal()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="ld" id="ld">
+  <div class="spinner"></div>
+  <p id="ld-txt">Memproses...</p>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  KONFIGURASI
+// ══════════════════════════════════════════════════════
+const CFG = {
+  APPS_SCRIPT_URL: 'GANTI_DENGAN_URL_APPS_SCRIPT',
+  ADMIN_PASSWORD:  'admin2025',  // ← GANTI PASSWORD INI
+};
+// ══════════════════════════════════════════════════════
+
+const $ = id => document.getElementById(id);
+const ld  = t => { $('ld-txt').textContent=t||'Memproses...'; $('ld').classList.add('aktif'); };
+const ul  = () => $('ld').classList.remove('aktif');
+
+let dGuru = [];
+let tokenAktif = '';
+let filteredGuru = [];
+
+// ── LOGIN ──
+$('admin-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+function doLogin(){
+  const pass = $('admin-pass').value;
+  if(pass !== CFG.ADMIN_PASSWORD){
+    $('login-err').style.display='block';
+    $('admin-pass').value='';
+    return;
+  }
+  sessionStorage.setItem('admin_ok','1');
+  $('login-wrap').style.display='none';
+  $('main-wrap').style.display='flex';
+  loadGuru();
+}
+
+function doLogout(){
+  sessionStorage.removeItem('admin_ok');
+  $('login-wrap').style.display='flex';
+  $('main-wrap').style.display='none';
+  $('admin-pass').value='';
+}
+
+// Cek session
+if(sessionStorage.getItem('admin_ok')==='1'){
+  $('login-wrap').style.display='none';
+  $('main-wrap').style.display='flex';
+  loadGuru();
+}
+
+// ── LOAD DATA GURU ──
+async function loadGuru(){
+  ld('Memuat data guru...');
+  try{
+    const r = await fetch(CFG.APPS_SCRIPT_URL+'?action=getData');
+    const d = await r.json();
+    dGuru = d.guru || [];
+  } catch(e){
+    dGuru = DATA_GURU_LOKAL;
+  }
+  ul();
+  filteredGuru = [...dGuru];
+  updateStats();
+  renderTabel();
+}
+
+function filterGuru(){
+  const q = $('search-guru').value.toLowerCase();
+  filteredGuru = dGuru.filter(g => g.nama.toLowerCase().includes(q) || g.inisial.toLowerCase().includes(q));
+  renderTabel();
+}
+
+function updateStats(){
+  const terdaftar = dGuru.filter(g => g.token).length;
+  $('stat-total').textContent = dGuru.length;
+  $('stat-terdaftar').textContent = terdaftar;
+  $('stat-belum').textContent = dGuru.length - terdaftar;
+}
+
+function renderTabel(){
+  if(!filteredGuru.length){
+    $('tabel-guru-wrap').innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Tidak ada guru ditemukan</p></div>';
+    return;
+  }
+
+  let html=`<table>
+    <thead><tr>
+      <th>No</th><th>Nama Guru</th><th>Inisial</th><th>Hari Piket</th>
+      <th>Status HP</th><th>Token</th><th>Aksi</th>
+    </tr></thead><tbody>`;
+
+  filteredGuru.forEach((g,i)=>{
+    const punya = g.token && g.token.trim();
+    const terdaftar = punya && g.deviceId && g.deviceId.trim();
+    let statusBadge, tokenDisplay;
+
+    if(terdaftar){
+      statusBadge='<span class="badge ok">✓ HP Terdaftar</span>';
+      tokenDisplay=`<span class="token-box">${g.token}</span>`;
+    } else if(punya){
+      statusBadge='<span class="badge belum">⏳ Belum Aktivasi</span>';
+      tokenDisplay=`<span class="token-box">${g.token}</span>`;
+    } else {
+      statusBadge='<span class="badge belum">— Belum Ada Token</span>';
+      tokenDisplay='<span class="token-box kosong">belum generate</span>';
+    }
+
+    const piketBadge=g.piket?`<span class="badge piket">${g.piket}</span>`:'<span style="color:var(--teks3);font-size:12px">—</span>';
+
+    html+=`<tr>
+      <td style="color:var(--teks3);font-size:12px">${i+1}</td>
+      <td><strong>${g.nama}</strong></td>
+      <td><span class="token-box" style="font-size:14px;font-weight:900">${g.inisial}</span></td>
+      <td>${piketBadge}</td>
+      <td>${statusBadge}</td>
+      <td>${tokenDisplay}</td>
+      <td>
+        <div class="btn-actions">
+          <button class="btn-sm hijau" onclick="generateToken('${g.inisial}','${g.nama}')">🔑 Generate</button>
+          ${punya?`<button class="btn-sm merah" onclick="resetToken('${g.inisial}','${g.nama}')">🗑 Reset</button>`:''}
+          ${punya?`<button class="btn-sm biru" onclick="salinLangsung('${g.token}')">📋 Salin</button>`:''}
+        </div>
+      </td>
+    </tr>`;
+  });
+
+  html+='</tbody></table>';
+  $('tabel-guru-wrap').innerHTML=html;
+}
+
+// ── GENERATE TOKEN ──
+async function generateToken(inisial, nama){
+  if(!confirm(`Generate token baru untuk ${nama}?\n\nJika sudah ada token sebelumnya, token lama akan diganti dan HP lama tidak bisa login.`)) return;
+  ld('Membuat token baru...');
+  try{
+    const r=await fetch(CFG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'generateToken',inisial})});
+    const d=await r.json();
+    ul();
+    if(d.ok && d.token){
+      tokenAktif=d.token;
+      $('modal-title').textContent='Token untuk '+nama;
+      $('modal-token-val').textContent=d.token;
+      $('modal-token').classList.add('aktif');
+      // Update lokal
+      const g=dGuru.find(x=>x.inisial===inisial);
+      if(g){ g.token=d.token; g.deviceId=''; }
+      updateStats(); renderTabel();
+    } else {
+      alert('Gagal generate token. Cek koneksi internet.');
+    }
+  }catch(e){
+    ul();
+    // Mode demo
+    const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let token=inisial+'-';
+    for(let i=0;i<6;i++) token+=chars[Math.floor(Math.random()*chars.length)];
+    tokenAktif=token;
+    $('modal-title').textContent='Token untuk '+nama;
+    $('modal-token-val').textContent=token;
+    $('modal-token').classList.add('aktif');
+  }
+}
+
+// ── RESET TOKEN ──
+async function resetToken(inisial, nama){
+  if(!confirm(`Reset token ${nama}?\n\nHP yang sudah terdaftar tidak bisa login lagi sampai guru melakukan registrasi ulang dengan token baru.`)) return;
+  ld('Mereset token...');
+  try{
+    await fetch(CFG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'resetToken',inisial})});
+  }catch(e){}
+  ul();
+  const g=dGuru.find(x=>x.inisial===inisial);
+  if(g){ g.token=''; g.deviceId=''; }
+  updateStats(); renderTabel();
+  alert(`✅ Token ${nama} berhasil direset.`);
+}
+
+// ── SALIN TOKEN ──
+function salinToken(){
+  navigator.clipboard.writeText(tokenAktif).then(()=>{
+    alert('✅ Token disalin! Kirimkan ke guru via WhatsApp:\n\n'+tokenAktif);
+  }).catch(()=>{
+    prompt('Salin token ini:', tokenAktif);
+  });
+}
+function salinLangsung(token){
+  navigator.clipboard.writeText(token).then(()=>{
+    alert('✅ Token disalin:\n\n'+token);
+  }).catch(()=>{
+    prompt('Salin token ini:', token);
+  });
+}
+function tutupModal(){ $('modal-token').classList.remove('aktif'); }
+
+// Data lokal fallback
+const DATA_GURU_LOKAL = [
+  {nama:'Andria Slamet S, S.Pd',inisial:'AS',pin:'1001',piket:'Kamis',token:'',deviceId:''},
+  {nama:'Aris Widodo, S.Pd.',inisial:'AW',pin:'1002',piket:'Sabtu',token:'',deviceId:''},
+  {nama:'Deni Afriyani, S.Pd.',inisial:'DN',pin:'1003',piket:'Jumat',token:'',deviceId:''},
+  {nama:'Firdaus, S.Pd.',inisial:'FI',pin:'1004',piket:'Kamis',token:'',deviceId:''},
+  {nama:'Ipal Miansyah, S.Pd.',inisial:'IP',pin:'1005',piket:'Selasa',token:'',deviceId:''},
+  {nama:'Irmayana, S.Pd.I',inisial:'IR',pin:'1006',piket:'Senin',token:'',deviceId:''},
+  {nama:'Jupri, A.Md.',inisial:'JP',pin:'1007',piket:'Rabu',token:'',deviceId:''},
+  {nama:'Laila Purwaningsih, S.Pd.',inisial:'LL',pin:'1008',piket:'Sabtu',token:'',deviceId:''},
+  {nama:'Lutfi Hafifah W, S.Pd',inisial:'LH',pin:'1009',piket:'Senin',token:'',deviceId:''},
+  {nama:'LR. Simatupang, S.Pd.',inisial:'LR',pin:'1010',piket:'Kamis',token:'',deviceId:''},
+  {nama:'Lasmiyati, S.Pd.',inisial:'LS',pin:'1011',piket:'Rabu',token:'',deviceId:''},
+  {nama:'Nova Ambarwati, S.Pd',inisial:'NA',pin:'1012',piket:'Rabu',token:'',deviceId:''},
+  {nama:'Natalia Rohani, S.Pd',inisial:'NR',pin:'1013',piket:'Senin',token:'',deviceId:''},
+  {nama:'Nenzy Agustina, S.Pd.',inisial:'NZ',pin:'1014',piket:'Selasa',token:'',deviceId:''},
+  {nama:'Padhil, S.Pd.',inisial:'PD',pin:'1015',piket:'Sabtu',token:'',deviceId:''},
+  {nama:'Ria Tiodora S., S.Pd.',inisial:'RT',pin:'1016',piket:'Selasa',token:'',deviceId:''},
+  {nama:'Ratmi Winasih, S.Pt',inisial:'RW',pin:'1017',piket:'Jumat',token:'',deviceId:''},
+  {nama:'Subagiyo, S.Pd',inisial:'SB',pin:'1018',piket:'Jumat',token:'',deviceId:''},
+  {nama:'Sandra Deni, S.Pd.I',inisial:'SD',pin:'1019',piket:'Jumat',token:'',deviceId:''},
+  {nama:'Sugeng Riyadi',inisial:'SG',pin:'1020',piket:'Senin',token:'',deviceId:''},
+  {nama:'Sri Hartini, S.H',inisial:'SH',pin:'1021',piket:'Senin',token:'',deviceId:''},
+  {nama:'Silva Rosdiana P, S.Pd.',inisial:'SV',pin:'1022',piket:'Kamis',token:'',deviceId:''},
+  {nama:'Vera Intan N, S.Pd',inisial:'VI',pin:'1023',piket:'Rabu',token:'',deviceId:''},
+  {nama:'Yatirah, S.Pd',inisial:'YT',pin:'1024',piket:'Sabtu',token:'',deviceId:''},
+  {nama:'Yulizar, S.TP',inisial:'YZ',pin:'1025',piket:'Selasa',token:'',deviceId:''},
+];
+</script>
+</body>
+</html>
