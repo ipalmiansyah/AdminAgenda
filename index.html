@@ -306,7 +306,7 @@ async function generateToken(inisial, nama){
   if(!confirm(`Generate token baru untuk ${nama}?\n\nJika sudah ada token sebelumnya, token lama akan diganti dan HP lama tidak bisa login.`)) return;
   ld('Membuat token baru...');
   try{
-    const r=await fetch(CFG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'generateToken',inisial})});
+    const r=await fetch(CFG.APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'generateToken',inisial})});
     const d=await r.json();
     ul();
     if(d.ok && d.token){
@@ -339,7 +339,7 @@ async function resetToken(inisial, nama){
   if(!confirm(`Reset token ${nama}?\n\nHP yang sudah terdaftar tidak bisa login lagi sampai guru melakukan registrasi ulang dengan token baru.`)) return;
   ld('Mereset token...');
   try{
-    await fetch(CFG.APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'resetToken',inisial})});
+    await fetch(CFG.APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'resetToken',inisial})});
   }catch(e){}
   ul();
   const g=dGuru.find(x=>x.inisial===inisial);
