@@ -120,6 +120,7 @@ tr:hover td{background:#f8fafc;}
       <p>SMP Negeri 05 Sarolangun · Manajemen Token HP Guru</p>
     </div>
     <div class="topbar-right">
+      <span id="last-sync" style="font-size:11px;color:rgba(255,255,255,0.5);"></span>
       <button class="btn-logout" onclick="doLogout()">Keluar</button>
     </div>
   </div>
@@ -217,13 +218,6 @@ function doLogout(){
   $('admin-pass').value='';
 }
 
-// Cek session
-if(sessionStorage.getItem('admin_ok')==='1'){
-  $('login-wrap').style.display='none';
-  $('main-wrap').style.display='flex';
-  loadGuru();
-}
-
 // ── LOAD DATA GURU ──
 async function loadGuru(){
   // Tampil cache dulu supaya tidak blank
@@ -247,8 +241,11 @@ async function loadGuru(){
     const d = await r.json();
     dGuru = d.guru || [];
     try{ localStorage.setItem('admin_guru_cache', JSON.stringify(dGuru)); }catch(e){}
+    // Tandai koneksi OK
+    const el=$('last-sync');if(el)el.textContent='Sync: '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
   } catch(e){
-    // tetap pakai yang sudah ditampilkan
+    // Fetch gagal — tampilkan indikator
+    const el=$('last-sync');if(el)el.textContent='⚠️ Offline — pakai cache';
   }
   ul();
   filteredGuru = [...dGuru];
@@ -412,6 +409,13 @@ const DATA_GURU_LOKAL = [
   {nama:'Yatirah, S.Pd',inisial:'YT',pin:'1024',piket:'Sabtu',token:'',deviceId:''},
   {nama:'Yulizar, S.TP',inisial:'YZ',pin:'1025',piket:'Selasa',token:'',deviceId:''},
 ];
+
+// Cek session — dipanggil setelah DATA_GURU_LOKAL siap
+if(sessionStorage.getItem('admin_ok')==='1'){
+  $('login-wrap').style.display='none';
+  $('main-wrap').style.display='flex';
+  loadGuru();
+}
 </script>
 </body>
 </html>
