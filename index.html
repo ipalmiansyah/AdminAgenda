@@ -320,9 +320,18 @@ function renderTabel(){
 // ── GENERATE TOKEN ──
 async function generateToken(inisial, nama){
   if(!confirm(`Generate token baru untuk ${nama}?\n\nJika sudah ada token sebelumnya, token lama akan diganti dan HP lama tidak bisa login.`)) return;
-  ld('Membuat token baru...');
+  ld('Membuat token... (mungkin 10-20 detik)');
   try{
-    const r=await fetch(CFG.APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'generateToken',inisial})});
+    // Timeout 30 detik untuk Apps Script cold start
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),30000);
+    const r=await fetch(CFG.APPS_SCRIPT_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'generateToken',inisial}),
+      signal:controller.signal
+    });
+    clearTimeout(timer);
     const d=await r.json();
     ul();
     if(d.ok && d.token){
@@ -330,23 +339,21 @@ async function generateToken(inisial, nama){
       $('modal-title').textContent='Token untuk '+nama;
       $('modal-token-val').textContent=d.token;
       $('modal-token').classList.add('aktif');
-      // Update lokal
+      // Update lokal dan cache
       const g=dGuru.find(x=>x.inisial===inisial);
       if(g){ g.token=d.token; g.deviceId=''; }
+      try{ localStorage.setItem('admin_guru_cache',JSON.stringify(dGuru)); }catch(e){}
       updateStats(); renderTabel();
     } else {
-      alert('Gagal generate token. Cek koneksi internet.');
+      alert('Gagal generate token: '+(d.error||'Respons tidak valid'));
     }
   }catch(e){
     ul();
-    // Mode demo
-    const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let token=inisial+'-';
-    for(let i=0;i<6;i++) token+=chars[Math.floor(Math.random()*chars.length)];
-    tokenAktif=token;
-    $('modal-title').textContent='Token untuk '+nama;
-    $('modal-token-val').textContent=token;
-    $('modal-token').classList.add('aktif');
+    if(e.name==='AbortError'){
+      alert('⏱️ Timeout — Apps Script terlalu lama merespons.\n\nCoba lagi dalam beberapa detik.\nPastikan Apps Script sudah di-deploy.');
+    } else {
+      alert('❌ Gagal koneksi ke server.\n\nPastikan:\n1. Apps Script sudah di-deploy\n2. Koneksi internet aktif\n\nError: '+e.message);
+    }
   }
 }
 
