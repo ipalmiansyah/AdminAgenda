@@ -192,7 +192,10 @@ let tokenAktif = '';
 let filteredGuru = [];
 
 // ── LOGIN ──
-$('admin-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = $('admin-pass');
+  if(inp) inp.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+});
 
 function doLogin(){
   const pass = $('admin-pass').value;
@@ -223,13 +226,29 @@ if(sessionStorage.getItem('admin_ok')==='1'){
 
 // ── LOAD DATA GURU ──
 async function loadGuru(){
-  ld('Memuat data guru...');
+  // Tampil cache dulu supaya tidak blank
+  const cached = localStorage.getItem('admin_guru_cache');
+  if(cached){
+    try{
+      dGuru = JSON.parse(cached);
+      filteredGuru = [...dGuru];
+      updateStats();
+      renderTabel();
+    }catch(e){}
+  } else {
+    dGuru = DATA_GURU_LOKAL;
+    filteredGuru = [...dGuru];
+    updateStats();
+    renderTabel();
+  }
+  // Fetch terbaru di background
   try{
     const r = await fetch(CFG.APPS_SCRIPT_URL+'?action=getData');
     const d = await r.json();
     dGuru = d.guru || [];
+    try{ localStorage.setItem('admin_guru_cache', JSON.stringify(dGuru)); }catch(e){}
   } catch(e){
-    dGuru = DATA_GURU_LOKAL;
+    // tetap pakai yang sudah ditampilkan
   }
   ul();
   filteredGuru = [...dGuru];
